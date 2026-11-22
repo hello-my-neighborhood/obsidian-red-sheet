@@ -10,73 +10,75 @@ body {
 .red-sheet-item:not(.rs-colored) {
 	color: var(--red-sheet-mark);
 }
-mark.red-sheet-item,
-.red-sheet-item.cm-highlight,
-.red-sheet-item .cm-highlight {
-	background-color: transparent !important;
+/* Highlights used as marks lose their yellow background (doubled classes beat the theme). */
+mark.red-sheet-item.red-sheet-item,
+.markdown-source-view .red-sheet-item.red-sheet-item.cm-highlight,
+.markdown-source-view .red-sheet-item.red-sheet-item .cm-highlight {
+	background-color: transparent;
 }
 
 /*
- * Sheet or filter on (vars --rs-* set on the note area, in screen coordinates): marked text is painted with a fixed-to-the-screen background.
- * Inside the red area it is transparent (so it disappears under the tint);
- * everywhere else it stays red. Moving the sheet uncovers it line by line.
+ * Sheet or filter on (vars --rs-* set on the note area, in screen coordinates): marked text is
+ * painted with a fixed-to-the-screen background clipped to the glyphs. Inside the red area the
+ * paint is transparent (so the text disappears under the tint); everywhere else it stays red.
+ * Moving the sheet uncovers it line by line.
+ * -webkit-text-fill-color wins over `color`, including inline colors the user wrote, so plain
+ * rules are enough.
  */
-.red-sheet-active .red-sheet-item,
-.red-sheet-active .red-sheet-item * {
-	color: transparent !important;
-	-webkit-text-fill-color: transparent !important;
-	text-decoration-color: transparent !important;
-	text-shadow: none !important;
+.red-sheet-active .red-sheet-item.red-sheet-item,
+.red-sheet-active .red-sheet-item.red-sheet-item * {
+	-webkit-text-fill-color: transparent;
+	text-shadow: none;
 }
-.red-sheet-active .red-sheet-item:not(.rs-colored) {
+.red-sheet-active .red-sheet-item.red-sheet-item:not(.rs-colored) {
 	--rs-ink: var(--red-sheet-mark);
 }
-.red-sheet-active .red-sheet-item {
+.red-sheet-active .red-sheet-item.red-sheet-item {
 	/* Four red bands around a transparent hole where the red area is. */
 	--rs-band: linear-gradient(var(--rs-ink), var(--rs-ink));
-	background-image: var(--rs-band), var(--rs-band), var(--rs-band), var(--rs-band) !important;
+	background-image: var(--rs-band), var(--rs-band), var(--rs-band), var(--rs-band);
 	background-size:
 		100% var(--rs-y),
 		100% 100%,
 		var(--rs-x) var(--rs-h),
-		100% var(--rs-h) !important;
+		100% var(--rs-h);
 	background-position:
 		0 0,
 		0 calc(var(--rs-y) + var(--rs-h)),
 		0 var(--rs-y),
-		calc(var(--rs-x) + var(--rs-w)) var(--rs-y) !important;
-	background-repeat: no-repeat !important;
-	background-attachment: fixed !important;
-	-webkit-background-clip: text !important;
-	background-clip: text !important;
+		calc(var(--rs-x) + var(--rs-w)) var(--rs-y);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	-webkit-background-clip: text;
+	background-clip: text;
 }
-/* Text the user painted red keeps its own red outside the sheet (--rs-ink set inline). */
+/* Text the user painted red keeps its own red outside the sheet (--rs-ink set on the element). */
 .red-sheet-active .red-sheet-item img {
 	visibility: hidden;
 }
 
 /* Peek: hovering a covered mark shows it in the normal text color (red on red would vanish). */
-body.red-sheet-peek .red-sheet-active .red-sheet-item:hover,
-body.red-sheet-peek .red-sheet-active .red-sheet-item:hover * {
-	background-image: none !important;
-	color: var(--text-normal) !important;
-	-webkit-text-fill-color: var(--text-normal) !important;
+body.red-sheet-peek .red-sheet-active .red-sheet-item.red-sheet-item:hover,
+body.red-sheet-peek .red-sheet-active .red-sheet-item.red-sheet-item:hover * {
+	background-image: none;
+	-webkit-text-fill-color: var(--text-normal);
 }
-body.red-sheet-peek .red-sheet-active .red-sheet-item:hover {
-	text-decoration: underline dotted var(--text-normal) !important;
+body.red-sheet-peek .red-sheet-active .red-sheet-item.red-sheet-item:hover {
+	border-bottom: 1px dotted var(--text-normal);
 }
 
 /* ---- The table (note area) and what lies on it ---- */
 .red-sheet-host {
 	position: relative;
 }
-.red-sheet-host.rs-over-sheet,
-.red-sheet-host.rs-over-sheet * {
-	cursor: grab !important;
+/* Doubled classes so the cursor wins over links and the editor's own cursors. */
+.red-sheet-host.red-sheet-host.rs-over-sheet,
+.red-sheet-host.red-sheet-host.rs-over-sheet * {
+	cursor: grab;
 }
-.red-sheet-host.rs-over-grip,
-.red-sheet-host.rs-over-grip * {
-	cursor: nwse-resize !important;
+.red-sheet-host.red-sheet-host.rs-over-grip,
+.red-sheet-host.red-sheet-host.rs-over-grip * {
+	cursor: nwse-resize;
 }
 .red-sheet-table {
 	position: absolute;

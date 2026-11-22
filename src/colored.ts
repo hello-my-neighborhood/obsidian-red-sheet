@@ -33,9 +33,8 @@ function redCache(doc: Document, color: string): string | null {
 	const key = color.trim().toLowerCase();
 	const hit = cache.get(key);
 	if (hit !== undefined) return hit;
-	const probe = doc.createElement("span");
+	const probe = doc.body.createSpan();
 	probe.setCssStyles({ color: key });
-	doc.body.appendChild(probe);
 	const rgb = (doc.defaultView ?? window).getComputedStyle(probe).color;
 	const result = isRedish(rgb) ? rgb : null;
 	probe.remove();

@@ -54,8 +54,7 @@ export function wrapBraceItems(root: HTMLElement): void {
 		const range = doc.createRange();
 		range.setStart(o.node, o.offset + 2);
 		range.setEnd(c.node, c.offset);
-		const span = doc.createElement("span");
-		span.className = ITEM_CLASS;
+		const span = createSpan({ cls: ITEM_CLASS });
 		span.appendChild(range.extractContents());
 		range.insertNode(span);
 		o.node.deleteData(o.offset, 2);

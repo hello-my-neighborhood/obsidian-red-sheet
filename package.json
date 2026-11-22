@@ -1,6 +1,6 @@
 {
   "name": "red-sheet",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Obsidian plugin: Japanese red sheet study technique",
   "main": "main.js",
   "scripts": {

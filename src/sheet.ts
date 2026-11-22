@@ -116,10 +116,7 @@ export class SheetController {
 	}
 
 	private div(parent: HTMLElement, cls: string): HTMLElement {
-		const d = parent.ownerDocument.createElement("div");
-		d.className = cls;
-		parent.appendChild(d);
-		return d;
+		return parent.createDiv({ cls });
 	}
 
 	private createSheet() {
