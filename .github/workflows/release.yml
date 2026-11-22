@@ -1,30 +1,49 @@
 name: Release
 
+# Publishes a release whenever manifest.json on main has a version that has no release yet.
+# The tag equals the version (no "v"), as Obsidian requires.
 on:
   push:
-    tags:
-      - "*"
+    branches: [main]
+    paths: [manifest.json]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Read version
+        id: v
+        run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Check for existing release
+        id: exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Build
+        if: steps.exists.outputs.found == 'false'
         run: |
           npm ci
           npm run build
       - name: Create release
+        if: steps.exists.outputs.found == 'false'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          gh release create "$tag" main.js manifest.json styles.css \
-            --title "$tag" \
+          v="${{ steps.v.outputs.version }}"
+          gh release create "$v" main.js manifest.json styles.css \
+            --target "$GITHUB_SHA" \
+            --title "$v" \
             --notes "Hide marked text behind a virtual red sheet or a red filter and reveal it to test your recall."
