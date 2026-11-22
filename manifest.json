@@ -1,0 +1,9 @@
+{
+	"id": "red-sheet",
+	"name": "Red Sheet",
+	"version": "0.4.0",
+	"minAppVersion": "1.5.0",
+	"description": "Hide marked text behind a virtual red sheet and reveal it to test your recall, inspired by the Japanese study technique.",
+	"author": "Caio",
+	"isDesktopOnly": false
+}

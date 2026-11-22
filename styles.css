@@ -1,0 +1,195 @@
+/* Red Sheet: red-pen marks that vanish under a red sheet, like the real thing. */
+
+body {
+	--red-sheet-mark: #e03131;
+	--red-sheet-sheet: #e03131;
+	--red-sheet-opacity: 0.55;
+}
+
+/* Marked text looks like red pen. */
+.red-sheet-item:not(.rs-colored) {
+	color: var(--red-sheet-mark);
+}
+mark.red-sheet-item,
+.red-sheet-item.cm-highlight,
+.red-sheet-item .cm-highlight {
+	background-color: transparent !important;
+}
+
+/*
+ * Sheet or filter on (vars --rs-* set on the note area, in screen coordinates): marked text is painted with a fixed-to-the-screen background.
+ * Inside the red area it is transparent (so it disappears under the tint);
+ * everywhere else it stays red. Moving the sheet uncovers it line by line.
+ */
+.red-sheet-active .red-sheet-item,
+.red-sheet-active .red-sheet-item * {
+	color: transparent !important;
+	-webkit-text-fill-color: transparent !important;
+	text-decoration-color: transparent !important;
+	text-shadow: none !important;
+}
+.red-sheet-active .red-sheet-item:not(.rs-colored) {
+	--rs-ink: var(--red-sheet-mark);
+}
+.red-sheet-active .red-sheet-item {
+	/* Four red bands around a transparent hole where the red area is. */
+	--rs-band: linear-gradient(var(--rs-ink), var(--rs-ink));
+	background-image: var(--rs-band), var(--rs-band), var(--rs-band), var(--rs-band) !important;
+	background-size:
+		100% var(--rs-y),
+		100% 100%,
+		var(--rs-x) var(--rs-h),
+		100% var(--rs-h) !important;
+	background-position:
+		0 0,
+		0 calc(var(--rs-y) + var(--rs-h)),
+		0 var(--rs-y),
+		calc(var(--rs-x) + var(--rs-w)) var(--rs-y) !important;
+	background-repeat: no-repeat !important;
+	background-attachment: fixed !important;
+	-webkit-background-clip: text !important;
+	background-clip: text !important;
+}
+/* Text the user painted red keeps its own red outside the sheet (--rs-ink set inline). */
+.red-sheet-active .red-sheet-item img {
+	visibility: hidden;
+}
+
+/* Peek: hovering a covered mark shows it in the normal text color (red on red would vanish). */
+body.red-sheet-peek .red-sheet-active .red-sheet-item:hover,
+body.red-sheet-peek .red-sheet-active .red-sheet-item:hover * {
+	background-image: none !important;
+	color: var(--text-normal) !important;
+	-webkit-text-fill-color: var(--text-normal) !important;
+}
+body.red-sheet-peek .red-sheet-active .red-sheet-item:hover {
+	text-decoration: underline dotted var(--text-normal) !important;
+}
+
+/* ---- The table (note area) and what lies on it ---- */
+.red-sheet-host {
+	position: relative;
+}
+.red-sheet-host.rs-over-sheet,
+.red-sheet-host.rs-over-sheet * {
+	cursor: grab !important;
+}
+.red-sheet-host.rs-over-grip,
+.red-sheet-host.rs-over-grip * {
+	cursor: nwse-resize !important;
+}
+.red-sheet-table {
+	position: absolute;
+	inset: 0;
+	overflow: hidden; /* the sheet can slide off the edges of the note */
+	pointer-events: none;
+	z-index: 5;
+}
+
+.red-sheet-filter {
+	position: absolute;
+	inset: 0;
+	background: var(--red-sheet-sheet);
+	opacity: var(--red-sheet-opacity);
+	mix-blend-mode: multiply;
+}
+
+.red-sheet-sheet {
+	position: absolute;
+	left: var(--rs-sheet-x, 0);
+	top: var(--rs-sheet-y, 0);
+	width: var(--rs-sheet-w, 100%);
+	height: var(--rs-sheet-h, 50%);
+	border-radius: 6px;
+	box-shadow:
+		0 10px 30px rgba(0, 0, 0, 0.22),
+		0 2px 6px rgba(0, 0, 0, 0.15),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+.red-sheet-sheet.is-dragging {
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28), 0 4px 10px rgba(0, 0, 0, 0.18),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+/* The tinted plastic. */
+.red-sheet-sheet::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: var(--red-sheet-sheet);
+	opacity: var(--red-sheet-opacity);
+	mix-blend-mode: multiply;
+}
+/* A soft sheen so it reads as a plastic film. */
+.red-sheet-sheet::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: linear-gradient(160deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 35%,
+		rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 0.12) 100%);
+}
+.theme-dark .red-sheet-sheet::before,
+.theme-dark .red-sheet-filter {
+	mix-blend-mode: normal;
+	opacity: calc(var(--red-sheet-opacity) * 0.6);
+}
+.theme-dark .red-sheet-sheet::after {
+	opacity: 0.4;
+}
+
+.red-sheet-sheet .rs-close {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	z-index: 1;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: 50%;
+	box-shadow: none;
+	background: color-mix(in srgb, var(--red-sheet-sheet) 80%, black);
+	color: white;
+	font-size: 16px;
+	line-height: 1;
+	cursor: pointer;
+	pointer-events: auto;
+	opacity: 0.75;
+}
+.red-sheet-sheet .rs-close:hover {
+	opacity: 1;
+}
+.red-sheet-sheet .rs-grip {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+	width: 28px;
+	height: 28px;
+	border-radius: 0 0 6px 0;
+	background: linear-gradient(135deg, transparent 55%, color-mix(in srgb, var(--red-sheet-sheet) 75%, black) 55%);
+	opacity: 0.7;
+}
+
+/* Filter switch in the status bar. */
+.red-sheet-status {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	cursor: pointer;
+}
+.red-sheet-status-icon {
+	display: flex;
+}
+.red-sheet-status-icon svg {
+	width: 14px;
+	height: 14px;
+}
+.red-sheet-status.is-active {
+	color: var(--red-sheet-sheet);
+	font-weight: 600;
+}
